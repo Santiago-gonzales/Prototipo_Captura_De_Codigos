@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#1061FF">
+  <title>Prototipo - Captura múltiple</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app">
+    <header>
+      <div class="header-meta"><strong>RASI</strong><span>PROTOTIPO DE CAPTURA DE INVENTARIO / V. 01</span></div>
+      <h1>Captura de códigos</h1>
+      <p>Detección múltiple / prueba técnica</p>
+    </header>
+
+    <section class="camera-card">
+      <div class="section-label"><span>01</span> / CAPTURA</div>
+      <div class="camera-heading">
+        <h2>Camera / Scanner</h2>
+        <span class="live-mark">● LIVE INPUT</span>
+      </div>
+      <div class="video-wrap">
+        <video id="video" autoplay playsinline muted></video>
+        <canvas id="canvas" hidden></canvas>
+        <div id="status" class="status" aria-live="polite">Pulsa “Iniciar cámara”.</div>
+      </div>
+
+      <div class="actions">
+        <button id="startBtn">Iniciar cámara</button>
+        <button id="stopBtn" class="secondary" disabled>Detener</button>
+        <button id="analyzeBtn" disabled>Analizar imagen</button>
+      </div>
+    </section>
+
+    <section class="result-card">
+      <div class="section-label"><span>02</span> / RESULTADO</div>
+      <div class="snapshot-panel">
+        <div class="snapshot-head">
+          <div>
+            <h2>Resultado de esta captura</h2>
+            <div class="snapshot-summary">
+              <span id="snapshotCount">Códigos encontrados: 0</span>
+              <span id="snapshotDifferentCount">Códigos diferentes: 0</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="snapshotEmpty" class="empty">
+          Pulsa “Analizar imagen” para analizar un solo frame.
+        </div>
+
+        <div class="snapshot-table-header" aria-hidden="true">
+          <span>Código</span>
+          <span>Cantidad</span>
+        </div>
+
+        <div id="snapshotResults" class="results"></div>
+      </div>
+
+    </section>
+
+    <section class="register-card">
+      <div class="section-label"><span>03</span> / REGISTRO</div>
+      <div class="result-head">
+        <div>
+          <h2>Códigos únicos acumulados</h2>
+          <span id="count">0 códigos únicos</span>
+        </div>
+        <div class="register-actions">
+          <button id="exportBtn">Exportar a Excel</button>
+          <button id="clearBtn" class="secondary">Limpiar</button>
+        </div>
+      </div>
+
+      <div id="empty" class="empty">
+        Apunta la cámara hacia varios códigos de barras.
+      </div>
+
+      <div id="results" class="results"></div>
+    </section>
+
+    <section class="test-card">
+      <div class="section-label"><span>04</span> / INFORMACIÓN</div>
+      <strong>Objetivo de esta prueba</strong>
+      <p>
+        Comprobar si la cámara puede analizar una imagen con varios códigos
+        y devolver sus valores.
+      </p>
+      <p class="note">
+        Esta versión no conecta con RASI, no modifica inventarios y todavía
+        no genera Excel.
+      </p>
+    </section>
+  </main>
+
+  <!-- ZXing WebAssembly: lector de códigos de barras -->
+<script src="https://cdn.jsdelivr.net/npm/zxing-wasm@3.1.3/dist/iife/reader/index.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
