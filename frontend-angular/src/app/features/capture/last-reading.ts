@@ -24,7 +24,7 @@ import { inventoryBadge } from '../../shared/formatting';
   styles: `
     :host { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
     .code { font-size: 19px; font-weight: 600; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .name { min-width: 0; color: var(--text-secondary); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .name { min-width: 0; color: var(--color-text-secondary); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .badges { display: flex; flex-wrap: wrap; gap: 4px 6px; margin-top: 3px; }
   `
 })
@@ -57,6 +57,6 @@ export class LastReading {
 
   protected readonly inventory = computed(() => {
     const barcode = this.barcode();
-    return barcode ? inventoryBadge(this.inventoryLookup.entry(barcode, this.session.header().warehouseId)) : null;
+    return barcode ? inventoryBadge(this.inventoryLookup.entry(barcode)) : null;
   });
 }

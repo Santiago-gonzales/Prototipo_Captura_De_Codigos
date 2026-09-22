@@ -3,7 +3,9 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { Subject } from 'rxjs';
 import type { CaptureEvent } from '../../models/capture-session.model';
+import { InventoryLookupService } from '../lookup/inventory-lookup.service';
 import { CameraScannerService } from '../scanning/camera-scanner.service';
+import { WarehouseService } from '../warehouse/warehouse.service';
 import { CaptureSessionService } from './capture-session.service';
 
 class FakeCamera {
@@ -50,19 +52,21 @@ describe('CaptureSessionService', () => {
     });
     session = TestBed.inject(CaptureSessionService);
     http = TestBed.inject(HttpTestingController);
+    // Bodega activa de la sesión (antes era la constante 2 del frontend).
+    TestBed.inject(WarehouseService).select({ id: 2, code: '1', name: 'COMERCIAL CUC' });
   });
 
   afterEach(() => {
     session.setMode('camera');
   });
 
-  function answerLookups(barcode: string, found = true) {
+  function answerLookups(barcode: string, found = true, warehouseId = '2') {
     const productRequest = http.expectOne(`/api/products/${barcode}`);
     if (found) productRequest.flush({ data: product(barcode), error: null });
     else productRequest.flush({ data: null, error: { message: 'Producto no encontrado' } }, { status: 404, statusText: 'Not Found' });
 
     const inventoryRequest = http.expectOne((request) =>
-      request.url === `/api/inventory/barcode/${barcode}` && request.params.get('bodega') === '2'
+      request.url === `/api/inventory/barcode/${barcode}` && request.params.get('bodega') === warehouseId
     );
     inventoryRequest.flush(found
       ? {
@@ -70,7 +74,7 @@ describe('CaptureSessionService', () => {
           barcode,
           product: { id: 9, name: 'ELEMENTO RASI', code: 'E-9', usesLot: true, usesSerial: false, status: 'A' },
           lots: [{ lot: 'L1', expirationDate: '2027-01-31', systemQuantity: 18 }],
-          warehouseId: 2,
+          warehouseId: Number(warehouseId),
           warehouseRequired: false
         },
         error: null
@@ -159,5 +163,65 @@ describe('CaptureSessionService', () => {
 
     session.setMode('camera');
     expect(session.metrics().isActive).toBe(false);
+  });
+
+  describe('bodega activa', () => {
+    const institucionalCuc = { id: 7, code: '2', name: 'INSTITUCIONAL CUC' };
+
+    it('cámara: el código detectado se valida en la bodega activa', async () => {
+      TestBed.inject(WarehouseService).select(institucionalCuc);
+
+      camera.captures.next({ barcode: '444', source: 'camera', frameId: 1 });
+      answerLookups('444', true, '7');
+      await flushMicrotasks();
+
+      expect(session.header().warehouseId).toBe(7);
+      expect(TestBed.inject(InventoryLookupService).entry('444')?.result?.warehouseId).toBe(7);
+      http.verify();
+    });
+
+    it('Zebra: el código escaneado se valida en la bodega activa', async () => {
+      TestBed.inject(WarehouseService).select(institucionalCuc);
+      session.setMode('zebra');
+
+      typeZebra('7700304758746');
+      answerLookups('7700304758746', true, '7');
+      await flushMicrotasks();
+
+      expect(session.items()[0].quantity).toBe(1);
+      http.verify();
+    });
+
+    it('"Analizar código" consulta la bodega activa', async () => {
+      TestBed.inject(WarehouseService).select(institucionalCuc);
+      camera.analyzeCode.mockResolvedValueOnce('555');
+
+      const analyzing = session.analyzeCode();
+      await flushMicrotasks();
+      http.expectOne((request) => request.url === '/api/inventory/barcode/555' && request.params.get('bodega') === '7')
+        .flush({ data: null, error: { message: 'Producto no encontrado' } }, { status: 404, statusText: 'Not Found' });
+
+      expect(await analyzing).toBe('555');
+      expect(TestBed.inject(InventoryLookupService).analyzedStatus()).toBe('not-found');
+      http.verify();
+    });
+
+    it('cambiar de bodega conserva las cantidades y valida los códigos en la nueva bodega', async () => {
+      TestBed.tick();
+      camera.captures.next({ barcode: '111', source: 'camera' });
+      answerLookups('111');
+      await flushMicrotasks();
+
+      TestBed.inject(WarehouseService).select(institucionalCuc);
+      TestBed.tick();
+
+      http.expectOne((request) => request.url === '/api/inventory/barcode/111' && request.params.get('bodega') === '7')
+        .flush({ data: null, error: { message: 'Producto no encontrado' } }, { status: 404, statusText: 'Not Found' });
+      await flushMicrotasks();
+
+      expect(session.items()).toEqual([{ barcode: '111', quantity: 1, product: product('111') }]);
+      expect(TestBed.inject(InventoryLookupService).entry('111')?.status).toBe('not-found');
+      http.verify();
+    });
   });
 });

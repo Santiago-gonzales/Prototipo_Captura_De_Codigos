@@ -45,9 +45,9 @@ import { formatIsoDate } from '../../shared/formatting';
   `,
   styles: `
     :host { display: block; font-size: 13.5px; }
-    .muted { color: var(--text-muted); }
-    .warning { color: var(--warning); }
-    .error { color: var(--error); }
+    .muted { color: var(--color-text-muted); }
+    .warning { color: var(--color-warning); }
+    .error { color: var(--color-error); }
     .facts {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -56,18 +56,18 @@ import { formatIsoDate } from '../../shared/formatting';
     }
     .facts div { min-width: 0; }
     dd { margin: 2px 0 0; overflow-wrap: anywhere; }
-    .lots-title { margin-bottom: 4px; font-family: var(--font-body); }
+    .lots-title { margin-bottom: 4px; }
     table { width: 100%; border-collapse: collapse; }
     th {
       padding: 6px 8px;
-      color: var(--text-muted);
+      color: var(--color-text-muted);
       font-size: 10.5px;
       font-weight: 500;
       letter-spacing: 0.06em;
       text-align: left;
       text-transform: uppercase;
     }
-    td { padding: 8px; border-top: 1px solid var(--border); }
+    td { padding: 8px; border-top: 1px solid var(--color-border); }
     .num { text-align: right; }
   `
 })

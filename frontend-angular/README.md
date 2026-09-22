@@ -1,7 +1,7 @@
 # RASI — Toma física (frontend Angular)
 
 Migración del frontend React (`../frontend`) a Angular 22, orientada a móvil.
-Consume el backend existente (`../backend`) sin cambios.
+Consume el backend existente (`../backend`); solo se añadió `GET /api/warehouses` (catálogo de bodegas RASI).
 
 ## Ejecutar
 
@@ -21,7 +21,9 @@ npm test              # Vitest (tracker, sesión, Zebra, exportación)
 ```
 src/app/
   core/
-    api/          ProductApiService, InventoryApiService (mismos endpoints que React)
+    api/          ProductApiService, InventoryApiService (mismos endpoints que React),
+                  WarehouseApiService
+    warehouse/    WarehouseService (bodega activa + última usada) y guard de rutas
     scanning/     CameraScannerService (port de useScanner), ZebraHidScannerService,
                   BarcodeTracker, ZXingScannerProvider, ZebraKeyboardScanner,
                   ZebraAndroidScanner (copiados sin cambios de lógica), CaptureSource
@@ -29,7 +31,8 @@ src/app/
     lookup/       ProductLookupService (cache + secuencia), InventoryLookupService
     export/       ExportService + capture-workbook (port literal del Excel)
     diagnostics/  bus de eventos (sin cambios) + DiagnosticService (buffer)
-  features/       capture, registry, product, more (rutas con carga diferida)
+  features/       start y warehouse (inicio / selección de bodega); capture, registry,
+                  product, more (rutas con carga diferida, dentro de MainShell)
   shared/         badges, editor de cantidad, estados vacíos, formato
   models/         tipos de dominio
 ```
@@ -58,8 +61,9 @@ src/app/
 ## Pendiente de definición (negocio)
 
 1. **Encabezado de la toma** (fecha, observación, bodega): el modelo existe
-   (`PhysicalCountHeader`); la bodega se fija en **2**, como en React. Falta el
-   flujo "crear toma" y un catálogo de bodegas (no existe un endpoint).
+   (`PhysicalCountHeader`). La bodega es la bodega activa (`WarehouseService`,
+   catálogo real en `GET /api/warehouses`, última bodega en `localStorage`).
+   Falta el flujo "crear toma".
 2. **Conteo por lote**: la cantidad física es por código de barras. Cómo repartirla
    entre lotes y vencimientos no está definido; los lotes solo se muestran.
 3. **Guardado de la toma**: `PhysicalCountReport` queda preparado; no hay endpoint.
@@ -73,7 +77,11 @@ src/app/
 - Configurar la URL del backend (`API_BASE_URL`), CORS (`CORS_ORIGIN`) y contenido
   mixto (app `https://localhost` → API `http://IP:3000`).
 - Permiso `CAMERA` en el manifest; validar Zebra HID (foco del WebView y sufijo Enter).
-- Las fuentes (Poppins, Space Grotesk) vienen de Google Fonts; sin conexión se
-  usan las fuentes del sistema.
+- Tipografías de marca (manual RASI): HK Grotesk (principal) y Poppins
+  (secundaria, textos largos). HK Grotesk no está en el proyecto ni en Google
+  Fonts; se declara primero (se usa si el dispositivo la tiene instalada) y se
+  carga Hanken Grotesk, su continuación libre (OFL), desde Google Fonts junto
+  con Poppins. Sin conexión se usan las fuentes del sistema. Para no depender
+  de la red habría que empaquetar los `.woff2` oficiales en `public/`.
 - `xlsx@0.18.5` (misma versión que React) tiene avisos de `npm audit`; se usa
   solo para escribir archivos.

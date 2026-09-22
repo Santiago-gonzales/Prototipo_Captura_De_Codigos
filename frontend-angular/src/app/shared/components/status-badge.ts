@@ -17,14 +17,16 @@ import type { Tone } from '../formatting';
       font-weight: 500;
       line-height: 1.4;
       white-space: nowrap;
-      background: #FFFFFF0F;
-      color: var(--text-secondary);
+      background: var(--color-neutral-soft);
+      color: var(--color-text-secondary);
+      /* Borde muy sutil del mismo color semántico (se omite si el navegador no soporta color-mix). */
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 22%, transparent);
     }
     .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-    :host(.tone-success) { background: #22BB331F; color: #4FD660; }
-    :host(.tone-warning) { background: #FFB0201F; color: var(--warning); }
-    :host(.tone-error) { background: #FF6B6B1F; color: var(--error); }
-    :host(.tone-info) { background: var(--blue-soft); color: #6FA0FF; }
+    :host(.tone-success) { background: var(--color-success-soft); color: var(--color-success-text); }
+    :host(.tone-warning) { background: var(--color-warning-soft); color: var(--color-warning); }
+    :host(.tone-error) { background: var(--color-error-soft); color: var(--color-error); }
+    :host(.tone-info) { background: var(--color-primary-soft); color: var(--color-primary-text); }
   `
 })
 export class StatusBadge {

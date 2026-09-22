@@ -30,7 +30,7 @@ const NAV_ITEMS: NavItem[] = [
     </nav>
   `,
   styles: `
-    :host { display: block; background: var(--surface); border-top: 1px solid var(--border); }
+    :host { display: block; background: var(--color-surface); border-top: 1px solid var(--color-border); }
     nav {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -43,19 +43,20 @@ const NAV_ITEMS: NavItem[] = [
       align-items: center;
       justify-content: center;
       gap: 3px;
-      color: var(--text-muted);
+      color: var(--color-text-muted);
       font-size: 11px;
       font-weight: 500;
       text-decoration: none;
       border-top: 2px solid transparent;
     }
-    a.active { color: var(--text); border-top-color: var(--blue); }
-    a:focus-visible { outline: 2px solid var(--blue); outline-offset: -4px; }
+    a.active { color: var(--color-text); font-weight: 600; border-top-color: var(--color-primary); }
+    a.active svg { stroke: var(--color-primary-text); }
+    a:focus-visible { outline: 2px solid var(--color-primary); outline-offset: -4px; }
     svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
     /* Teléfono en horizontal: riel lateral para no restar altura a la cámara. */
     @media (orientation: landscape) and (max-height: 600px) {
-      :host { height: 100%; border-top: 0; border-right: 1px solid var(--border); }
+      :host { height: 100%; border-top: 0; border-right: 1px solid var(--color-border); }
       nav {
         grid-template-columns: 1fr;
         grid-auto-rows: 1fr;
@@ -64,7 +65,7 @@ const NAV_ITEMS: NavItem[] = [
         padding: var(--safe-top) 0 var(--safe-bottom) var(--safe-left);
       }
       a { border-top: 0; border-left: 2px solid transparent; }
-      a.active { border-left-color: var(--blue); }
+      a.active { border-left-color: var(--color-primary); }
     }
   `
 })

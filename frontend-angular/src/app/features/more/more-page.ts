@@ -1,11 +1,13 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { CaptureSessionService } from '../../core/session/capture-session.service';
+import { WarehouseService } from '../../core/warehouse/warehouse.service';
 import { formatDuration, formatIsoDate } from '../../shared/formatting';
 import { DiagnosticPanel } from './diagnostic-panel';
 
 @Component({
   selector: 'app-more-page',
-  imports: [DiagnosticPanel],
+  imports: [DiagnosticPanel, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="page">
@@ -29,10 +31,16 @@ import { DiagnosticPanel } from './diagnostic-panel';
           <h2 class="label">Toma física</h2>
           <dl class="header-info">
             <div><dt>Fecha</dt><dd class="mono">{{ date() }}</dd></div>
-            <div><dt>Bodega</dt><dd class="mono">{{ session.header().warehouseId }}</dd></div>
+            <div class="wide">
+              <dt>Bodega</dt>
+              @if (warehouse.active(); as active) {
+                <dd>{{ active.name }} <span class="code mono">Código {{ active.code }}</span></dd>
+              }
+            </div>
             <div><dt>Observación</dt><dd>{{ session.header().observation || '—' }}</dd></div>
           </dl>
-          <p class="note">Encabezado provisional. La bodega es la que usa hoy la consulta de inventario; la creación y el guardado de la toma están pendientes de definición.</p>
+          <a class="btn btn-secondary change" routerLink="/warehouses" [queryParams]="{ from: 'more' }">Cambiar bodega</a>
+          <p class="note">Las consultas de inventario usan la bodega activa. La creación y el guardado de la toma están pendientes de definición.</p>
         </section>
 
         <details class="block">
@@ -56,10 +64,10 @@ import { DiagnosticPanel } from './diagnostic-panel';
       margin-bottom: 12px;
       padding: 14px 16px;
       border-radius: var(--radius);
-      background: var(--surface);
-      border: 1px solid var(--border);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
     }
-    .block > .label { margin-bottom: 10px; font-family: var(--font-body); }
+    .block > .label { margin-bottom: 10px; }
     .metrics {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -67,12 +75,15 @@ import { DiagnosticPanel } from './diagnostic-panel';
       margin: 0;
     }
     @media (min-width: 640px) { .metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
-    .metrics div { padding: 10px 12px; border-radius: var(--radius-sm); background: var(--surface-secondary); }
-    dt { color: var(--text-muted); font-size: 11.5px; }
+    .metrics div { padding: 10px 12px; border-radius: var(--radius-sm); background: var(--color-surface-elevated); }
+    dt { color: var(--color-text-muted); font-size: 11.5px; }
     .metrics dd { margin: 2px 0 0; font-size: 24px; font-weight: 600; }
     .header-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px 16px; margin: 0; }
-    .header-info dd { margin: 2px 0 0; font-size: 15px; }
-    .note { margin-top: 10px; color: var(--text-muted); font-size: 12px; }
+    .header-info dd { margin: 2px 0 0; font-size: 15px; overflow-wrap: anywhere; }
+    .header-info .wide { grid-column: 1 / -1; }
+    .header-info .code { margin-left: 6px; color: var(--color-text-muted); font-size: 12.5px; white-space: nowrap; }
+    .change { min-height: 40px; margin-top: 12px; padding: 0 14px; font-size: 13px; text-decoration: none; }
+    .note { margin-top: 10px; color: var(--color-text-muted); font-family: var(--font-secondary); font-size: 12px; }
     summary {
       display: flex;
       align-items: center;
@@ -83,15 +94,16 @@ import { DiagnosticPanel } from './diagnostic-panel';
       list-style: none;
     }
     summary::-webkit-details-marker { display: none; }
-    summary::after { content: '+'; color: var(--text-muted); font-size: 20px; font-weight: 400; }
+    summary::after { content: '+'; color: var(--color-text-muted); font-size: 20px; font-weight: 400; }
     details[open] summary { margin-bottom: 10px; }
     details[open] summary::after { content: '−'; }
-    .info { display: flex; flex-direction: column; gap: 8px; color: var(--text-secondary); font-size: 13px; }
-    .info strong { color: var(--text); }
+    .info { display: flex; flex-direction: column; gap: 8px; color: var(--color-text-secondary); font-family: var(--font-secondary); font-size: 13px; }
+    .info strong { color: var(--color-text); }
   `
 })
 export class MorePage {
   protected readonly session = inject(CaptureSessionService);
+  protected readonly warehouse = inject(WarehouseService);
   protected readonly metrics = this.session.metrics;
   protected readonly duration = computed(() => formatDuration(this.session.durationMs()));
   protected readonly date = computed(() => formatIsoDate(this.session.header().date));

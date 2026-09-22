@@ -1,13 +1,13 @@
 :host { display: block; height: 100%; }
 
 .pager { display: flex; align-items: center; gap: 4px; }
-.position { min-width: 56px; color: var(--text-secondary); font-size: 13px; text-align: center; }
+.position { min-width: 56px; color: var(--color-text-secondary); font-size: 13px; text-align: center; }
 .nav {
   width: var(--touch);
   height: 40px;
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-sm);
-  background: var(--surface);
+  background: var(--color-surface);
   font-size: 22px;
   line-height: 1;
   cursor: pointer;
@@ -18,8 +18,8 @@
   margin-bottom: 12px;
   padding: 16px;
   border-radius: var(--radius);
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
 }
 
 .card-head {
@@ -28,11 +28,10 @@
   justify-content: space-between;
   gap: 10px;
   margin-bottom: 12px;
-  h2 { font-family: var(--font-body); }
 }
 .code-sm { font-size: 14px; }
 
-.analyzed { border-left: 3px solid var(--blue); }
+.analyzed { border-left: 3px solid var(--color-primary); }
 
 .item { touch-action: pan-y; user-select: none; }
 
@@ -43,8 +42,8 @@
   gap: 4px;
   margin-bottom: 16px;
   h2 { font-size: 22px; line-height: 1.2; }
-  .missing { color: var(--error); }
-  .muted { color: var(--text-muted); }
+  .missing { color: var(--color-error); }
+  .muted { color: var(--color-text-muted); }
 }
 
 .facts {
@@ -55,12 +54,12 @@
   dd { margin: 2px 0 0; font-size: 15px; overflow-wrap: anywhere; }
   dd.mono { font-size: 16px; font-weight: 600; }
   .wide { grid-column: 1 / -1; }
-  .wide dd { color: var(--text-secondary); font-size: 13.5px; }
+  .wide dd { color: var(--color-text-secondary); font-family: var(--font-secondary); font-size: 13.5px; }
 }
 
 .inventory {
   padding-top: 14px;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--color-border);
   h3 { margin-bottom: 10px; font-size: 15px; }
 }
 

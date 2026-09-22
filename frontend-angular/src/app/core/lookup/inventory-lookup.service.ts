@@ -2,6 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import type { InventoryLookup } from '../../models/inventory.model';
 import type { LookupStatus } from '../../models/lookup-status.model';
 import { InventoryApiService } from '../api/inventory-api.service';
+import { WarehouseService } from '../warehouse/warehouse.service';
 
 export interface InventoryEntry {
   status: Exclude<LookupStatus, 'idle'>;
@@ -13,7 +14,8 @@ function cacheKey(warehouseId: number, barcode: string) {
 }
 
 /**
- * Consulta de inventario/lotes contra RASI (solo lectura).
+ * Consulta de inventario/lotes contra RASI (solo lectura), siempre en la
+ * bodega activa de WarehouseService. Sin bodega activa no se consulta nada.
  *
  * Dos usos:
  * 1. `ensure()`: validación automática y asíncrona de cada código capturado
@@ -24,6 +26,7 @@ function cacheKey(warehouseId: number, barcode: string) {
 @Injectable({ providedIn: 'root' })
 export class InventoryLookupService {
   private readonly api = inject(InventoryApiService);
+  private readonly warehouse = inject(WarehouseService);
   private readonly pending = new Set<string>();
   private readonly entriesState = signal<ReadonlyMap<string, InventoryEntry>>(new Map());
   private generation = 0;
@@ -36,12 +39,16 @@ export class InventoryLookupService {
   readonly analyzedResult = this.analyzedResultState.asReadonly();
   readonly analyzedStatus = this.analyzedStatusState.asReadonly();
 
-  entry(barcode: string, warehouseId: number): InventoryEntry | undefined {
-    return this.entriesState().get(cacheKey(warehouseId, barcode));
+  /** Validación del código en la bodega activa. */
+  entry(barcode: string): InventoryEntry | undefined {
+    const warehouseId = this.warehouse.activeId();
+    return warehouseId === null ? undefined : this.entriesState().get(cacheKey(warehouseId, barcode));
   }
 
   /** Lanza la validación si no existe resultado ni petición en curso. Reintenta tras error. */
-  ensure(barcode: string, warehouseId: number) {
+  ensure(barcode: string) {
+    const warehouseId = this.warehouse.activeId();
+    if (warehouseId === null) return;
     const key = cacheKey(warehouseId, barcode);
     const current = this.entriesState().get(key);
     if (this.pending.has(key) || (current && current.status !== 'error')) return;
@@ -59,7 +66,19 @@ export class InventoryLookupService {
     this.analyzedStatusState.set('idle');
   }
 
-  async lookupAnalyzed(barcode: string, warehouseId: number) {
+  /** Olvida la consulta puntual (p. ej. al cambiar de bodega: pertenecía a la anterior). */
+  resetAnalyzed() {
+    this.analyzedBarcodeState.set(null);
+    this.analyzedResultState.set(null);
+    this.analyzedStatusState.set('idle');
+  }
+
+  async lookupAnalyzed(barcode: string) {
+    const warehouseId = this.warehouse.activeId();
+    if (warehouseId === null) {
+      this.cancelAnalyze();
+      return;
+    }
     this.analyzedBarcodeState.set(barcode);
     try {
       const result = await this.api.getByBarcode(barcode, warehouseId);

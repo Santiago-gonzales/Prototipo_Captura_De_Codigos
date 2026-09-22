@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, input, output, signal } f
 import { RouterLink } from '@angular/router';
 import type { InventoryEntry } from '../../core/lookup/inventory-lookup.service';
 import type { ScanItem } from '../../models/scan-item.model';
+import type { Warehouse } from '../../models/warehouse.model';
 import { QuantityEditor } from '../../shared/components/quantity-editor';
 import { StatusBadge } from '../../shared/components/status-badge';
 import { formatIsoDate, inventoryBadge, productBadge } from '../../shared/formatting';
@@ -10,10 +11,15 @@ import { formatIsoDate, inventoryBadge, productBadge } from '../../shared/format
   selector: 'app-registry-item',
   imports: [QuantityEditor, StatusBadge, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  // Solo presentación: el color lateral de la tarjeta sigue al estado del producto.
+  host: { '[attr.data-state]': "item().product === null ? 'missing' : item().product ? 'found' : 'pending'" },
   template: `
     <div class="main">
       <div class="identity">
-        <strong class="code mono">{{ item().barcode }}</strong>
+        <span class="code">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6v12M7.5 6v12M10 6v12M13.5 6v12M16 6v12M20 6v12" /></svg>
+          <strong class="mono">{{ item().barcode }}</strong>
+        </span>
         <span class="name" [class.missing]="item().product === null">{{ name() }}</span>
         <div class="badges">
           <app-status-badge [label]="status().label" [tone]="status().tone" />
@@ -24,12 +30,14 @@ import { formatIsoDate, inventoryBadge, productBadge } from '../../shared/format
     </div>
 
     <div class="meta">
-      <span><span class="label">Bodega</span> {{ warehouseId() }}</span>
+      @if (warehouse(); as active) {
+        <div class="fact" [title]="active.name"><span class="label">Bodega</span><span class="value mono">{{ active.code }}</span></div>
+      }
       @if (singleLot(); as lot) {
-        <span><span class="label">Lote</span> {{ lot.lot || 'No disponible' }}</span>
-        <span><span class="label">Vence</span> {{ formatDate(lot.expirationDate) }}</span>
+        <div class="fact"><span class="label">Lote</span><span class="value mono">{{ lot.lot || 'No disponible' }}</span></div>
+        <div class="fact"><span class="label">Vence</span><span class="value mono">{{ formatDate(lot.expirationDate) }}</span></div>
       } @else if (lots().length > 1) {
-        <span>{{ lots().length }} lotes con saldo</span>
+        <div class="fact"><span class="label">Lotes</span><span class="value">{{ lots().length }} lotes con saldo</span></div>
       }
       @if (hasDetails()) {
         <button type="button" class="toggle" [attr.aria-expanded]="expanded()" (click)="expanded.set(!expanded())">
@@ -44,7 +52,15 @@ import { formatIsoDate, inventoryBadge, productBadge } from '../../shared/format
           <p class="description">{{ description }}</p>
         }
         @if (inventoryEntry()?.result; as result) {
-          <p class="rasi"><span class="label">Código RASI</span> <span class="mono">{{ result.product.code }}</span> · {{ result.product.name }}</p>
+          <div class="rasi">
+            <span class="rasi-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M21 8 12 3 3 8v8l9 5 9-5V8ZM3 8l9 5 9-5M12 13v8" /></svg>
+            </span>
+            <div class="rasi-text">
+              <span class="label">Código RASI</span>
+              <span class="rasi-value"><span class="mono">{{ result.product.code }}</span> · {{ result.product.name }}</span>
+            </div>
+          </div>
         }
         @if (lots().length > 0) {
           <table>
@@ -60,7 +76,10 @@ import { formatIsoDate, inventoryBadge, productBadge } from '../../shared/format
             </tbody>
           </table>
         }
-        <a class="product-link" routerLink="/product" [queryParams]="{ barcode: item().barcode }">Ver producto</a>
+        <a class="product-link" routerLink="/product" [queryParams]="{ barcode: item().barcode }">
+          Ver producto
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+        </a>
       </div>
     }
   `,
@@ -69,7 +88,8 @@ import { formatIsoDate, inventoryBadge, productBadge } from '../../shared/format
 export class RegistryItem {
   readonly item = input.required<ScanItem>();
   readonly inventoryEntry = input<InventoryEntry>();
-  readonly warehouseId = input.required<number>();
+  /** Bodega activa (se muestra su código; el nombre queda en el título). */
+  readonly warehouse = input<Warehouse | null>(null);
   readonly quantityChange = output<number>();
 
   protected readonly expanded = signal(false);

@@ -2,13 +2,14 @@ import type { CaptureMode } from './capture-session.model';
 
 /**
  * Encabezado de una toma física según RASI: fecha, observación y bodega.
- * PENDIENTE (negocio): reglas de creación, catálogo de bodegas y guardado.
+ * PENDIENTE (negocio): reglas de creación y guardado.
  */
 export interface PhysicalCountHeader {
   /** Fecha de la toma en formato YYYY-MM-DD. */
   date: string;
   observation: string;
-  warehouseId: number;
+  /** Bodega activa (`bode_id`). `null` solo antes de seleccionar bodega. */
+  warehouseId: number | null;
 }
 
 /**

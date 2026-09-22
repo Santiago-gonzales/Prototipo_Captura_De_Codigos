@@ -1,73 +1,170 @@
 :host {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 10px;
   padding: 12px 12px 12px 14px;
   border-radius: var(--radius);
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+// Indicador lateral fino según el estado del producto (data-state en el host).
+:host::before {
+  content: '';
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  left: -1px;
+  width: 2px;
+  border-radius: 0 2px 2px 0;
+  background: var(--color-border-strong);
+}
+:host([data-state='found'])::before { background: var(--color-primary); }
+:host([data-state='missing'])::before { background: var(--color-error); }
+
+// El control de cantidad acompaña el estado de la tarjeta.
+:host([data-state='found']) app-quantity-editor { border-color: var(--color-primary); }
+
+.icon, .rasi-icon svg, .product-link svg {
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .main {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px 12px;
 }
 
-.identity { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-.code { font-size: 17px; font-weight: 600; overflow-wrap: anywhere; }
-.name { color: var(--text-secondary); font-size: 13.5px; }
-.name.missing { color: var(--error); }
-.badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+// Si el código no cabe junto a la cantidad (teléfonos angostos), la cantidad baja de línea.
+.identity { flex: 1 1 170px; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-width: 0; }
 
+.code {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  padding: 3px 8px 3px 6px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-elevated);
+
+  .icon { width: 16px; height: 16px; color: var(--color-primary-text); stroke-width: 1.6; }
+  strong { min-width: 0; font-size: 17px; font-weight: 700; line-height: 1.3; overflow-wrap: anywhere; }
+}
+
+.name { color: var(--color-text-secondary); font-size: 13.5px; }
+.name.missing { color: var(--color-error); }
+.badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+
+// Bodega / lote / vencimiento como bloques cortos; se reparten en filas si no caben.
 .meta {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px 16px;
-  padding-top: 8px;
-  border-top: 1px solid var(--border);
-  color: var(--text-secondary);
-  font-size: 12.5px;
+  gap: 6px;
+  padding-top: 10px;
+  border-top: 1px solid var(--color-border);
+}
 
-  .label { margin-right: 4px; font-size: 10.5px; }
+.fact {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-elevated);
+
+  .label { font-size: 10px; }
+  .value { color: var(--color-text); font-size: 13px; font-weight: 600; overflow-wrap: anywhere; }
 }
 
 .toggle {
   margin-left: auto;
   min-height: 32px;
   padding: 0 10px;
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-sm);
   background: transparent;
-  color: var(--text-secondary);
+  color: var(--color-text-secondary);
   font-size: 12px;
   cursor: pointer;
-  &:hover { color: var(--text); }
+  &:hover { color: var(--color-text); }
 }
 
 .details {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   font-size: 13px;
 }
 
-.description { color: var(--text-secondary); }
-.rasi { color: var(--text-secondary); .label { margin-right: 4px; } }
+.description { color: var(--color-text-secondary); font-family: var(--font-secondary); }
+
+// Bloque de inventario RASI: único uso del morado en la tarjeta, como acento.
+.rasi {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-secondary-soft);
+  border-left: 2px solid var(--color-secondary);
+  background: var(--color-surface-elevated);
+}
+
+.rasi-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  background: var(--color-secondary);
+  color: var(--color-text);
+
+  svg { width: 16px; height: 16px; }
+}
+
+.rasi-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.rasi-value { color: var(--color-text); overflow-wrap: anywhere; }
 
 table { width: 100%; border-collapse: collapse; font-size: 13px; }
 th {
   padding: 6px 8px;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   font-size: 10.5px;
   font-weight: 500;
   letter-spacing: 0.06em;
   text-align: left;
   text-transform: uppercase;
 }
-td { padding: 7px 8px; border-top: 1px solid var(--border); }
+td { padding: 7px 8px; border-top: 1px solid var(--color-border); }
 .num { text-align: right; }
 
-.product-link { align-self: flex-start; color: #6FA0FF; font-size: 12.5px; font-weight: 600; text-decoration: none; }
+.product-link {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 32px;
+  color: var(--color-primary-text);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 120ms ease;
+
+  svg { width: 16px; height: 16px; transition: transform 120ms ease; }
+  &:hover { color: var(--color-text); }
+  &:hover svg { transform: translateX(2px); }
+  &:active { opacity: 0.7; }
+  &:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; border-radius: 4px; }
+}

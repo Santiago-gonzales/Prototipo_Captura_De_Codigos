@@ -60,15 +60,15 @@ import { CameraScannerService } from '../../core/scanning/camera-scanner.service
       min-height: 0;
       overflow: hidden;
       border-radius: var(--radius);
-      background: #04060B;
+      background: var(--color-camera);
       isolation: isolate;
     }
     .video-host, .overlay { position: absolute; inset: 0; width: 100%; height: 100%; }
     .video-host ::ng-deep video { display: block; width: 100%; height: 100%; object-fit: contain; }
     .overlay { pointer-events: none; }
-    .overlay rect { fill: #1061FF22; stroke: #4F8BFF; stroke-width: 3; vector-effect: non-scaling-stroke; }
+    .overlay rect { fill: var(--color-primary-soft); stroke: var(--color-primary-bright); stroke-width: 3; vector-effect: non-scaling-stroke; }
 
-    .corner { position: absolute; width: 22px; height: 22px; border: 0 solid #FFFFFFB3; pointer-events: none; }
+    .corner { position: absolute; width: 22px; height: 22px; border: 0 solid var(--color-text-secondary); pointer-events: none; }
     .tl { top: 12px; left: 12px; border-width: 2px 0 0 2px; border-top-left-radius: 6px; }
     .tr { top: 12px; right: 12px; border-width: 2px 2px 0 0; border-top-right-radius: 6px; }
     .bl { bottom: 12px; left: 12px; border-width: 0 0 2px 2px; border-bottom-left-radius: 6px; }
@@ -83,7 +83,7 @@ import { CameraScannerService } from '../../core/scanning/camera-scanner.service
       justify-content: center;
       gap: 10px;
       padding: 24px;
-      color: var(--text-secondary);
+      color: var(--color-text-secondary);
       text-align: center;
       font-size: 13px;
     }
@@ -102,24 +102,24 @@ import { CameraScannerService } from '../../core/scanning/camera-scanner.service
       margin: 0 auto;
       padding: 7px 12px;
       border-radius: 999px;
-      background: #080A12D9;
+      background: var(--color-overlay);
       backdrop-filter: blur(6px);
       font-size: 12.5px;
       font-weight: 500;
     }
     .status .text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .status.hot { box-shadow: inset 0 0 0 1px #1061FF99; }
+    .status.hot { box-shadow: inset 0 0 0 1px var(--color-primary); }
     .count {
       min-width: 22px;
       padding: 0 6px;
       border-radius: 999px;
-      background: var(--blue);
+      background: var(--color-primary);
       font-size: 12px;
       font-weight: 600;
       text-align: center;
     }
-    .pulse { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); }
-    .pulse.on { background: var(--success); animation: pulse 1.6s ease-in-out infinite; }
+    .pulse { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--color-text-muted); }
+    .pulse.on { background: var(--color-success); animation: pulse 1.6s ease-in-out infinite; }
     @keyframes pulse { 50% { opacity: 0.35; } }
   `
 })

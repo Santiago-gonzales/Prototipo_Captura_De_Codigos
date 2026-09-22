@@ -27,17 +27,17 @@ import { ZebraHidScannerService } from '../../core/scanning/zebra-hid-scanner.se
       min-height: 0;
       padding: 24px;
       border-radius: var(--radius);
-      background: var(--surface);
-      border: 1px solid var(--border);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
       text-align: center;
     }
-    .state { display: inline-flex; align-items: center; gap: 8px; color: var(--text-secondary); font-size: 13px; }
-    .pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); }
-    .pulse.on { background: var(--purple); box-shadow: 0 0 0 4px var(--purple-soft); animation: pulse 1.6s ease-in-out infinite; }
+    .state { display: inline-flex; align-items: center; gap: 8px; color: var(--color-text-secondary); font-size: 13px; }
+    .pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--color-text-muted); }
+    .pulse.on { background: var(--color-secondary); box-shadow: 0 0 0 4px var(--color-secondary-soft); animation: pulse 1.6s ease-in-out infinite; }
     @keyframes pulse { 50% { opacity: 0.4; } }
     .code { display: flex; flex-direction: column; gap: 6px; max-width: 100%; }
     .code strong { font-size: clamp(22px, 6vw, 34px); font-weight: 600; overflow-wrap: anywhere; }
-    .hint { max-width: 36ch; color: var(--text-muted); font-size: 12.5px; }
+    .hint { max-width: 36ch; color: var(--color-text-muted); font-family: var(--font-secondary); font-size: 12.5px; }
   `
 })
 export class ZebraPanel {

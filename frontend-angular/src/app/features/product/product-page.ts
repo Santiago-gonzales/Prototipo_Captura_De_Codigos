@@ -44,7 +44,7 @@ export class ProductPage {
 
   protected readonly inventoryEntry = computed(() => {
     const item = this.current();
-    return item ? this.inventory.entry(item.barcode, this.session.header().warehouseId) : undefined;
+    return item ? this.inventory.entry(item.barcode) : undefined;
   });
 
   constructor() {

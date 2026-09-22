@@ -71,20 +71,20 @@ function formatEventDetails(event: DiagnosticEvent) {
     .toolbar .btn { min-height: 36px; padding: 0 10px; font-size: 12.5px; }
     article {
       padding: 8px 10px;
-      border-left: 2px solid var(--border-strong);
+      border-left: 2px solid var(--color-border-strong);
       border-radius: 4px;
-      background: var(--surface-secondary);
+      background: var(--color-surface-elevated);
       font-size: 12px;
     }
-    article[data-type='TRACKER NEW ENTITY'], article[data-type='APP CAPTURE'] { border-left-color: var(--success); }
-    article[data-type='TRACKER MATCH REJECT'] { border-left-color: var(--warning); }
-    article[data-type='TRACKER EXPIRED'] { border-left-color: var(--purple); }
-    article[data-type='ZXING DETECTIONS'] { border-left-color: var(--blue); }
+    article[data-type='TRACKER NEW ENTITY'], article[data-type='APP CAPTURE'] { border-left-color: var(--color-success); }
+    article[data-type='TRACKER MATCH REJECT'] { border-left-color: var(--color-warning); }
+    article[data-type='TRACKER EXPIRED'] { border-left-color: var(--color-secondary); }
+    article[data-type='ZXING DETECTIONS'] { border-left-color: var(--color-primary); }
     .event-head { display: flex; justify-content: space-between; gap: 8px; }
     .event-head strong { font-size: 11px; letter-spacing: 0.04em; }
-    time { color: var(--text-muted); font-size: 11px; }
-    .event-details { margin-top: 2px; color: var(--text-secondary); font-size: 11.5px; overflow-wrap: anywhere; }
-    .empty { color: var(--text-muted); font-size: 13px; }
+    time { color: var(--color-text-muted); font-size: 11px; }
+    .event-details { margin-top: 2px; color: var(--color-text-secondary); font-size: 11.5px; overflow-wrap: anywhere; }
+    .empty { color: var(--color-text-muted); font-size: 13px; }
   `
 })
 export class DiagnosticPanel {

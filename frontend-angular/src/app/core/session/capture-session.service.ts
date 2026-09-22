@@ -1,4 +1,4 @@
-import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
+import { DestroyRef, Injectable, computed, effect, inject, signal, untracked } from '@angular/core';
 import { merge } from 'rxjs';
 import type { CaptureEvent, CaptureMode, CaptureSessionMetrics } from '../../models/capture-session.model';
 import type { PhysicalCountHeader } from '../../models/physical-count.model';
@@ -8,9 +8,7 @@ import { InventoryLookupService } from '../lookup/inventory-lookup.service';
 import { ProductLookupService } from '../lookup/product-lookup.service';
 import { CameraScannerService } from '../scanning/camera-scanner.service';
 import { ZebraHidScannerService } from '../scanning/zebra-hid-scanner.service';
-
-/** Bodega usada hoy por el frontend React (`getInventoryByBarcode(barcode, 2)`). */
-export const DEFAULT_WAREHOUSE_ID = 2;
+import { WarehouseService } from '../warehouse/warehouse.service';
 
 const initialSessionMetrics = (mode: CaptureMode): CaptureSessionMetrics => ({
   startedAt: null,
@@ -45,6 +43,7 @@ export class CaptureSessionService {
   private readonly zebra = inject(ZebraHidScannerService);
   private readonly products = inject(ProductLookupService);
   private readonly inventory = inject(InventoryLookupService);
+  private readonly warehouse = inject(WarehouseService);
 
   private barcodeCallbackId = 0;
   private metricsTimer: number | undefined;
@@ -53,15 +52,18 @@ export class CaptureSessionService {
   private readonly itemsState = signal<ScanItem[]>([]);
   private readonly metricsState = signal<CaptureSessionMetrics>(initialSessionMetrics('camera'));
   private readonly nowState = signal(Date.now());
-  private readonly headerState = signal<PhysicalCountHeader>({
+  private readonly headerState = signal<Omit<PhysicalCountHeader, 'warehouseId'>>({
     date: todayIsoDate(),
-    observation: '',
-    warehouseId: DEFAULT_WAREHOUSE_ID
+    observation: ''
   });
 
   readonly mode = this.modeState.asReadonly();
   readonly items = this.itemsState.asReadonly();
-  readonly header = this.headerState.asReadonly();
+  /** La bodega del encabezado es siempre la bodega activa (WarehouseService). */
+  readonly header = computed<PhysicalCountHeader>(() => ({
+    ...this.headerState(),
+    warehouseId: this.warehouse.activeId()
+  }));
   readonly totalUnits = computed(() => sumUnits(this.itemsState()));
   readonly uniqueCodes = computed(() => this.itemsState().length);
 
@@ -91,6 +93,18 @@ export class CaptureSessionService {
   constructor() {
     const subscription = merge(this.camera.captures$, this.zebra.captures$)
       .subscribe((event) => void this.handleCapture(event));
+
+    // Al cambiar de bodega, los códigos ya capturados se validan contra la nueva.
+    let previousWarehouseId: number | null = null;
+    effect(() => {
+      const warehouseId = this.warehouse.activeId();
+      untracked(() => {
+        if (warehouseId === null || warehouseId === previousWarehouseId) return;
+        if (previousWarehouseId !== null) this.inventory.resetAnalyzed();
+        previousWarehouseId = warehouseId;
+        for (const item of this.itemsState()) this.inventory.ensure(item.barcode);
+      });
+    });
 
     inject(DestroyRef).onDestroy(() => {
       subscription.unsubscribe();
@@ -139,7 +153,7 @@ export class CaptureSessionService {
       this.inventory.cancelAnalyze();
       return null;
     }
-    await this.inventory.lookupAnalyzed(barcode, this.headerState().warehouseId);
+    await this.inventory.lookupAnalyzed(barcode);
     return barcode;
   }
 
@@ -209,8 +223,8 @@ export class CaptureSessionService {
     console.groupEnd();
     this.commitItems(nextItems);
 
-    // Validación contra inventario: asíncrona, no retrasa la captura.
-    this.inventory.ensure(barcode, this.headerState().warehouseId);
+    // Validación contra inventario en la bodega activa: asíncrona, no retrasa la captura.
+    this.inventory.ensure(barcode);
 
     const resolved = await this.products.resolve(barcode);
     if (resolved) {

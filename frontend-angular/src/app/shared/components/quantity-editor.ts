@@ -37,34 +37,37 @@ import { ChangeDetectionStrategy, Component, ElementRef, effect, input, output, 
       grid-template-columns: 44px minmax(52px, auto) 44px;
       align-items: stretch;
       height: 44px;
-      border: 1px solid var(--border-strong);
+      border: 1px solid var(--color-border-strong);
       border-radius: var(--radius-sm);
-      background: var(--surface-secondary);
+      background: var(--color-surface-elevated);
       overflow: hidden;
     }
-    button { border: 0; background: transparent; cursor: pointer; }
-    .step { font-size: 20px; color: var(--text-secondary); }
-    .step:hover:not(:disabled) { color: var(--text); background: #FFFFFF0A; }
+    button { border: 0; background: transparent; cursor: pointer; transition: background-color 120ms ease, color 120ms ease; }
+    .step { font-size: 20px; color: var(--color-text-secondary); }
+    .step:hover:not(:disabled) { color: var(--color-text); background: var(--color-hover-overlay); }
+    .step:active:not(:disabled) { color: var(--color-text); background: var(--color-primary-soft); }
     .step:disabled { opacity: 0.3; cursor: not-allowed; }
     .value {
       padding: 0 6px;
-      border-left: 1px solid var(--border);
-      border-right: 1px solid var(--border);
-      font-size: 18px;
-      font-weight: 600;
+      border-left: 1px solid var(--color-border-strong);
+      border-right: 1px solid var(--color-border-strong);
+      background: var(--color-surface);
+      font-size: 19px;
+      font-weight: 700;
     }
+    .value:hover { background: var(--color-primary-subtle); }
     input {
       grid-column: 1 / 3;
       width: 100%;
       min-width: 0;
       border: 0;
       padding: 0 10px;
-      background: #1061FF14;
-      font: 600 18px var(--font-display);
+      background: var(--color-primary-subtle);
+      font: 600 18px var(--font-primary);
       text-align: center;
       outline: none;
     }
-    button:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
+    button:focus-visible { outline: 2px solid var(--color-primary); outline-offset: -2px; }
   `
 })
 export class QuantityEditor {

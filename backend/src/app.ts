@@ -5,6 +5,7 @@ import { errorHandler } from "./middleware/error-handler.js";
 import { notFound } from "./middleware/not-found.js";
 import { inventoryRouter } from "./routes/inventory.routes.js";
 import { productsRouter } from "./routes/products.routes.js";
+import { warehousesRouter } from "./routes/warehouses.routes.js";
 
 export const app = express();
 
@@ -17,5 +18,6 @@ app.get("/api/health", (_request, response) => {
 
 app.use("/api/products", productsRouter);
 app.use("/api/inventory", inventoryRouter);
+app.use("/api/warehouses", warehousesRouter);
 app.use(notFound);
 app.use(errorHandler);

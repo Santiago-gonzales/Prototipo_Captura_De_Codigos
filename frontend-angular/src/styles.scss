@@ -1,24 +1,61 @@
 /* Sistema visual RASI: tokens y controles base compartidos por todas las vistas. */
 
+// Identidad RASI (manual de redes sociales). Solo estas cinco constantes son
+// colores de marca; el resto de la interfaz usa los tokens semánticos.
 :root {
-  --bg: #080A12;
-  --surface: #0F121C;
-  --surface-secondary: #151925;
-  --border: #FFFFFF1A;
-  --border-strong: #FFFFFF33;
-  --blue: #1061FF;
-  --blue-soft: #1061FF26;
-  --purple: #6216BF;
-  --purple-soft: #6216BF33;
-  --success: #22BB33;
-  --warning: #FFB020;
-  --error: #FF6B6B;
-  --text: #FFFFFF;
-  --text-secondary: #FFFFFFA6;
-  --text-muted: #FFFFFF70;
+  --rasi-blue: #1061FF;
+  --rasi-purple: #6216BF;
+  --rasi-white: #FFFFFF;
+  --rasi-black: #000000;
+  --rasi-gray: #3B3939;
 
-  --font-display: "Space Grotesk", system-ui, sans-serif;
-  --font-body: "Poppins", system-ui, sans-serif;
+  // Acción principal: azul RASI. Hover/active son el mismo tono aclarado u oscurecido.
+  --color-primary: var(--rasi-blue);
+  --color-primary-hover: #2A73FF;
+  --color-primary-active: #0D52DB;
+  --color-primary-soft: #1061FF26;
+  --color-primary-subtle: #1061FF14;
+  // Azul RASI aclarado para texto y trazos finos sobre fondo oscuro (contraste).
+  --color-primary-text: #6FA0FF;
+  --color-primary-bright: #4F8BFF;
+
+  // Acento: morado RASI, reservado para Zebra y marcas puntuales.
+  --color-secondary: var(--rasi-purple);
+  --color-secondary-soft: #6216BF33;
+
+  // Superficies: azul marino oscuro (mismo tono que el azul RASI, muy poco
+  // saturado), escalonado de fondo a superficie elevada.
+  --color-background: #060D1C;
+  --color-surface: #0B162B;
+  --color-surface-elevated: #11203A;
+  --color-camera: #030812;
+  --color-overlay: #060D1CD9;
+  --color-border: #7FA6FF24;
+  --color-border-strong: #27395A;
+  --color-border-hover: #9DB8FF66;
+
+  --color-text: var(--rasi-white);
+  --color-text-secondary: #DCE6FBB8;
+  --color-text-muted: #BCCDF090;
+  --color-hover-overlay: #8FB3FF14;
+  --color-neutral-soft: #8FB3FF17;
+
+  // Estados funcionales: se conservan los tonos; solo se centralizan.
+  --color-success: #22BB33;
+  --color-success-text: #4FD660;
+  --color-success-soft: #22BB331F;
+  --color-success-ring: #22BB3333;
+  --color-warning: #FFB020;
+  --color-warning-soft: #FFB0201F;
+  --color-error: #FF6B6B;
+  --color-error-soft: #FF6B6B1F;
+  --color-error-subtle: #FF6B6B14;
+
+  // HK Grotesk (principal) y Poppins (secundaria, textos largos). HK Grotesk
+  // no se distribuye con el proyecto: si no está instalada se usa Hanken
+  // Grotesk (su continuación libre, cargada en index.html).
+  --font-primary: "HK Grotesk", "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-secondary: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 
   --radius: 10px;
   --radius-sm: 6px;
@@ -38,13 +75,13 @@
 html, body {
   height: 100%;
   margin: 0;
-  background: var(--bg);
+  background: var(--color-background);
 }
 
 body {
   overflow: hidden;
-  color: var(--text);
-  font: 400 14px/1.45 var(--font-body);
+  color: var(--color-text);
+  font: 400 14px/1.45 var(--font-primary);
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
 }
@@ -52,7 +89,7 @@ body {
 h1, h2, h3, p { margin: 0; }
 
 h1, h2, h3 {
-  font-family: var(--font-display);
+  font-family: var(--font-primary);
   font-weight: 600;
   letter-spacing: -0.01em;
 }
@@ -60,15 +97,15 @@ h1, h2, h3 {
 button, input { font: inherit; color: inherit; }
 
 .mono {
-  font-family: var(--font-display);
+  font-family: var(--font-primary);
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.01em;
 }
 
 .label {
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -91,34 +128,36 @@ button, input { font: inherit; color: inherit; }
   transition: background-color 120ms ease, border-color 120ms ease, opacity 120ms ease;
 
   &:disabled { opacity: 0.4; cursor: not-allowed; }
-  &:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+  &:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
 }
 
 .btn-primary {
-  background: var(--blue);
-  color: var(--text);
-  &:hover:not(:disabled) { background: #2A73FF; }
-  &:active:not(:disabled) { background: #0D52DB; }
+  background: var(--color-primary);
+  color: var(--color-text);
+  &:hover:not(:disabled) { background: var(--color-primary-hover); }
+  &:active:not(:disabled) { background: var(--color-primary-active); }
 }
 
 .btn-stop {
-  background: var(--surface-secondary);
-  border-color: var(--error);
-  color: var(--error);
-  &:hover:not(:disabled) { background: #FF6B6B14; }
+  background: var(--color-surface-elevated);
+  border-color: var(--color-error);
+  color: var(--color-error);
+  &:hover:not(:disabled) { background: var(--color-error-subtle); }
 }
 
 .btn-secondary {
-  background: var(--surface-secondary);
-  border-color: var(--border-strong);
-  color: var(--text);
-  &:hover:not(:disabled) { border-color: #FFFFFF66; }
+  background: var(--color-surface-elevated);
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
+  font-weight: 500;
+  &:hover:not(:disabled) { border-color: var(--color-border-hover); }
+  &:active:not(:disabled) { background: var(--color-surface); }
 }
 
 .btn-ghost {
   background: transparent;
-  color: var(--text-secondary);
-  &:hover:not(:disabled) { color: var(--text); }
+  color: var(--color-text-secondary);
+  &:hover:not(:disabled) { color: var(--color-text); }
 }
 
 .btn-block { width: 100%; }
@@ -126,8 +165,8 @@ button, input { font: inherit; color: inherit; }
 /* Superficies */
 
 .surface {
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius);
 }
 
