@@ -1,0 +1,68 @@
+<section class="capture" [class.is-zebra]="mode() === 'zebra'">
+  <header class="top">
+    <div class="brand">
+      <span class="brand-mark">RASI</span>
+      <h1>Toma física</h1>
+    </div>
+    <div class="session" [class.live]="live()" role="status">
+      <span class="dot" aria-hidden="true"></span>
+      <span>{{ sessionLabel() }}</span>
+      @if (sessionActive()) {
+        <span class="duration mono" aria-label="Duración de la sesión">{{ duration() }}</span>
+      }
+    </div>
+  </header>
+
+  <app-capture-mode-toggle class="mode" [mode]="mode()" (modeChange)="session.setMode($event)" />
+
+  <div class="viewer">
+    @if (mode() === 'camera') {
+      <app-camera-viewport />
+    } @else {
+      <app-zebra-panel />
+    }
+  </div>
+
+  <div class="panel">
+    <dl class="counts">
+      <div>
+        <dt class="label">Unidades</dt>
+        <dd class="mono">{{ session.totalUnits() }}</dd>
+      </div>
+      <div>
+        <dt class="label">Elementos</dt>
+        <dd class="mono">{{ session.uniqueCodes() }}</dd>
+      </div>
+    </dl>
+
+    <app-last-reading class="last" />
+
+    @if (inventory.analyzedStatus() !== 'idle') {
+      <a class="analysis" routerLink="/product" [attr.data-status]="inventory.analyzedStatus()">
+        @switch (inventory.analyzedStatus()) {
+          @case ('loading') { <span>Consultando inventario…</span> }
+          @case ('found') {
+            <span class="analysis-text">
+              <strong class="mono">{{ inventory.analyzedResult()?.barcode }}</strong>
+              {{ inventory.analyzedResult()?.product?.name }} · {{ inventory.analyzedResult()?.lots?.length }} lote(s)
+            </span>
+            <span class="analysis-link">Ver</span>
+          }
+          @case ('not-found') { <span>Código no encontrado: <strong class="mono">{{ inventory.analyzedBarcode() }}</strong></span> }
+          @case ('error') { <span>No fue posible consultar el inventario.</span> }
+        }
+      </a>
+    }
+
+    @if (mode() === 'camera') {
+      <div class="actions">
+        <button type="button" class="btn" [class.btn-primary]="!camera.running()" [class.btn-stop]="camera.running()" (click)="toggleCamera()">
+          {{ camera.running() ? 'Detener captura' : 'Iniciar cámara' }}
+        </button>
+        <button type="button" class="btn btn-secondary" [disabled]="analyzeDisabled()" (click)="analyze()">
+          {{ camera.analyzing() ? 'Analizando…' : 'Analizar código' }}
+        </button>
+      </div>
+    }
+  </div>
+</section>
